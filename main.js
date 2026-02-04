@@ -1,120 +1,106 @@
-var accion = 'nuevo',
-    id = 0;
+const { createApp } = Vue;
 
-document.addEventListener("DOMContentLoaded", () => {
-    txtBuscarAlumno.addEventListener("keyup", (e) => {
-        mostrarAlumnos(e.target.value);
-    });
-    frmAlumnos.addEventListener("submit", (e) => {
-        e.preventDefault();
-       guardarAlumno();
-    });
-    frmAlumnos.addEventListener("reset", (e) => {
-        limpiarFormulario();
-    });
-    mostrarAlumnos();
-});
-
-function mostrarAlumnos(buscar=''){
-    let $tblAlumnos = document.querySelector("#tblAlumnos tbody"),
-        n = localStorage.length,
-        filas = "";
-    $tblAlumnos.innerHTML = "";
-    for(let i=0; i<n; i++){
-        let key = localStorage.key(i);
-        if( Number(key) ){
-            let data = JSON.parse(localStorage.getItem(key));
-            if( data.nombre.toUpperCase().includes(buscar.toUpperCase()) || 
-                data.codigo.toUpperCase().includes(buscar.toUpperCase()) ){
-                filas += `
-                    <tr onclick='modificarAlumno(${JSON.stringify(data)})'>
-                    <td>${data.codigo}</td>
-                    <td>${data.nombre}</td>
-                    <td>${data.direccion}</td>
-                    <td>${data.municipio}</td>
-                    <td>${data.departamento}</td>
-                    <td>${data.email}</td>
-                    <td>${data.telefono}</td>
-                    <td>${data.fecha}</td>
-                    <td>${data.sexo}</td>
-                   
-                        <td>
-                            <button class="btn btn-danger" onclick='eliminarAlumno(${data.id}, event)'>DEL</button>
-                        </td>
-                    </tr>
-                `;
+createApp({
+    data() {
+        return {
+            alumno: {
+                codigo: "",
+                nombre: "",
+                direccion: "",
+                municipio: "",
+                departamento: "",
+                email: "",
+                telefono: "",
+                fecha: "",
+                sexo: ""
+            },
+            accion: 'nuevo',
+            id: 0,
+            buscar: '',
+            alumnos: []
+        }
+    },
+    methods: {
+        obtenerAlumnos() {
+            this.alumnos = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                // Intentamos leer solo lo que parece un ID numérico nuestro
+                if (!isNaN(key)) {
+                    try {
+                        let data = JSON.parse(localStorage.getItem(key));
+                        // Verificamos que sea un objeto válido de alumno
+                        if (data && data.codigo) {
+                            if (data.nombre.toUpperCase().includes(this.buscar.toUpperCase()) ||
+                                data.codigo.toUpperCase().includes(this.buscar.toUpperCase())) {
+                                this.alumnos.push(data);
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error leyendo registro:", e);
+                    }
+                }
             }
+        },
+        eliminarAlumno(id, e) {
+            if (e) e.stopPropagation();
+            if (confirm("¿Está seguro de eliminar el alumno?")) {
+                localStorage.removeItem(id);
+                this.obtenerAlumnos();
+            }
+        },
+        modificarAlumno(alumno) {
+            this.accion = 'modificar';
+            this.id = alumno.id;
+            // Usamos spread operator para copiar los datos limpiamente
+            this.alumno = { ...alumno };
+        },
+        guardarAlumno() {
+            // Validamos que los campos importantes no estén vacíos
+            if(!this.alumno.codigo || !this.alumno.nombre) {
+                alert("Por favor rellene Código y Nombre");
+                return;
+            }
+
+            let datos = {
+                id: this.accion === 'modificar' ? this.id : this.getId(),
+                ...this.alumno
+            };
+
+            let codigoDuplicado = this.buscarAlumno(datos.codigo);
+            if (codigoDuplicado && this.accion === 'nuevo') {
+                alert("El codigo del alumno ya existe, " + codigoDuplicado.nombre);
+                return;
+            }
+
+            localStorage.setItem(datos.id, JSON.stringify(datos));
+            this.limpiarFormulario();
+            this.obtenerAlumnos();
+        },
+        getId() {
+            return new Date().getTime();
+        },
+        limpiarFormulario() {
+            this.accion = 'nuevo';
+            this.id = 0;
+            for (let key in this.alumno) {
+                this.alumno[key] = '';
+            }
+        },
+        buscarAlumno(codigo = '') {
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (!isNaN(key)) {
+                    let datos = JSON.parse(localStorage.getItem(key));
+                    if (datos?.codigo?.trim().toUpperCase() === codigo.trim().toUpperCase()) {
+                        return datos;
+                    }
+                }
+            }
+            return null;
         }
+    },
+    mounted() {
+        this.obtenerAlumnos();
     }
-    $tblAlumnos.innerHTML = filas;
-}
-function eliminarAlumno(id, e){
-    e.stopPropagation();
-    if(confirm("¿Está seguro de eliminar el alumno?")){
-        localStorage.removeItem(id);
-        mostrarAlumnos();
-    }
-}
-function modificarAlumno(alumno){
-    txtCodigoAlumno.value = alumno.codigo;
-    txtnombreAlumno.value = alumno.nombre;
-    txtDireccionAlumno.value = alumno.direccion;
-    txtMunicipioAlumno.value = alumno.municipio;
-    txtDepartamentoAlumno.value = alumno.departamento;
-    txtEmailAlumno.value = alumno.email;
-    txtTelefonoAlumno.value = alumno.telefono;
-    txtFechaNacimientoAlumno.value = alumno.fecha;
-    txtSexoAlumno.value = alumno.sexo;
-    
-}
-function guardarAlumno() {
-    let datos = {
-        id: getId(),
-        codigo: txtCodigoAlumno.value,
-        nombre: txtnombreAlumno.value,
-        direccion: txtDireccionAlumno.value,
-        municipio: txtMunicipioAlumno.value, 
-        departamento: txtDepartamentoAlumno.value, 
-        email: txtEmailAlumno.value,
-        telefono: txtTelefonoAlumno.value,
-        fecha: txtFechaNacimientoAlumno.value, 
-        sexo: txtSexoAlumno.value
-    }, codigoDuplicado = buscarAlumno(datos.codigo);
-    if(codigoDuplicado){
-        alert("El codigo del alumno ya existe, "+ codigoDuplicado.nombre);
-        return; //Termina la ejecucion de la funcion
-    }
-    localStorage.setItem( datos.id, JSON.stringify(datos));
-    limpiarFormulario();
-}
-
-function getId(){
-    return localStorage.length + 1;
-}
-
-function limpiarFormulario(){
-    accion = 'nuevo';
-    id = 0;
-    txtCodigoAlumno.value = '';
-    txtnombreAlumno.value = '';
-    txtDireccionAlumno.value = '';
-    txtMunicipioAlumno.value = '';
-    txtDepartamentoAlumno.value = '';
-    txtEmailAlumno.value = '';
-    txtTelefonoAlumno.value = '';
-    txtFechaNacimientoAlumno.value = '';
-    txtSexoAlumno.value = '';
-}
-
-
-function buscarAlumno(codigo=''){
-    let n = localStorage.length;
-    for(let i = 0; i < n; i++){
-        let key = localStorage.key(i);
-        let datos = JSON.parse(localStorage.getItem(key));
-        if(datos?.codigo && datos.codigo.trim().toUpperCase() == codigo.trim().toUpperCase()){
-            return datos;
-        }
-    }
-    return null;
-}
+}).mount("#app");
