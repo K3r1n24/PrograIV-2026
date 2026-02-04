@@ -1,39 +1,71 @@
+var accion = 'nuevo',
+    id = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
+    txtBuscarAlumno.addEventListener("keyup", (e) => {
+        mostrarAlumnos(e.target.value);
+    });
     frmAlumnos.addEventListener("submit", (e) => {
         e.preventDefault();
        guardarAlumno();
     });
+    frmAlumnos.addEventListener("reset", (e) => {
+        limpiarFormulario();
+    });
     mostrarAlumnos();
 });
-function mostrarAlumnos(){
+
+function mostrarAlumnos(buscar=''){
     let $tblAlumnos = document.querySelector("#tblAlumnos tbody"),
         n = localStorage.length,
         filas = "";
     $tblAlumnos.innerHTML = "";
     for(let i=0; i<n; i++){
-        let key = localStorage.key(i),
-            data = JSON.parse(localStorage.getItem(key));
-        filas += `
-                <tr onclick='modificarAlumno(${JSON.stringify(data)})'>
+        let key = localStorage.key(i);
+        if( Number(key) ){
+            let data = JSON.parse(localStorage.getItem(key));
+            if( data.nombre.toUpperCase().includes(buscar.toUpperCase()) || 
+                data.codigo.toUpperCase().includes(buscar.toUpperCase()) ){
+                filas += `
+                    <tr onclick='modificarAlumno(${JSON.stringify(data)})'>
                     <td>${data.codigo}</td>
                     <td>${data.nombre}</td>
                     <td>${data.direccion}</td>
+                    <td>${data.municipio}</td>
+                    <td>${data.departamento}</td>
                     <td>${data.email}</td>
                     <td>${data.telefono}</td>
-                    <td>
-                        <button class="btn btn-danger">DEL</button>
-                    </td>
-                </tr>
-            `;
+                    <td>${data.fecha}</td>
+                    <td>${data.sexo}</td>
+                   
+                        <td>
+                            <button class="btn btn-danger" onclick='eliminarAlumno(${data.id}, event)'>DEL</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
     }
     $tblAlumnos.innerHTML = filas;
+}
+function eliminarAlumno(id, e){
+    e.stopPropagation();
+    if(confirm("¿Está seguro de eliminar el alumno?")){
+        localStorage.removeItem(id);
+        mostrarAlumnos();
+    }
 }
 function modificarAlumno(alumno){
     txtCodigoAlumno.value = alumno.codigo;
     txtnombreAlumno.value = alumno.nombre;
     txtDireccionAlumno.value = alumno.direccion;
+    txtMunicipioAlumno.value = alumno.municipio;
+    txtDepartamentoAlumno.value = alumno.departamento;
     txtEmailAlumno.value = alumno.email;
     txtTelefonoAlumno.value = alumno.telefono;
+    txtFechaNacimientoAlumno.value = alumno.fecha;
+    txtSexoAlumno.value = alumno.sexo;
+    
 }
 function guardarAlumno() {
     let datos = {
@@ -41,8 +73,12 @@ function guardarAlumno() {
         codigo: txtCodigoAlumno.value,
         nombre: txtnombreAlumno.value,
         direccion: txtDireccionAlumno.value,
+        municipio: txtMunicipioAlumno.value, 
+        departamento: txtDepartamentoAlumno.value, 
         email: txtEmailAlumno.value,
-        telefono: txtTelefonoAlumno.value
+        telefono: txtTelefonoAlumno.value,
+        fecha: txtFechaNacimientoAlumno.value, 
+        sexo: txtSexoAlumno.value
     }, codigoDuplicado = buscarAlumno(datos.codigo);
     if(codigoDuplicado){
         alert("El codigo del alumno ya existe, "+ codigoDuplicado.nombre);
@@ -57,8 +93,19 @@ function getId(){
 }
 
 function limpiarFormulario(){
-    frmAlumnos.reset();
+    accion = 'nuevo';
+    id = 0;
+    txtCodigoAlumno.value = '';
+    txtnombreAlumno.value = '';
+    txtDireccionAlumno.value = '';
+    txtMunicipioAlumno.value = '';
+    txtDepartamentoAlumno.value = '';
+    txtEmailAlumno.value = '';
+    txtTelefonoAlumno.value = '';
+    txtFechaNacimientoAlumno.value = '';
+    txtSexoAlumno.value = '';
 }
+
 
 function buscarAlumno(codigo=''){
     let n = localStorage.length;
