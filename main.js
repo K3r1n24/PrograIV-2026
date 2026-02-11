@@ -101,6 +101,9 @@ createApp({
         }
     },
     mounted() {
+        db.version(1).stores({
+            "alumnos": "idAlumno, codigo, nombre, direccion, municipio, departamento, email, telefono, fecha, sexo"
+        });
         this.obtenerAlumnos();
     }
 }).mount("#app");
