@@ -23,9 +23,14 @@ createApp({
         }
     },
     methods:{
+        buscar(ventana, metodo){
+            this.$refs[ventana][metodo]();
+        },
         abrirVentana(ventana){
             this.forms[ventana].mostrar = !this.forms[ventana].mostrar;
-            console.log(this.forms[ventana].mostrar, ventana);
+        },
+        modificar(ventana, metodo, data){
+            this.$refs[ventana][metodo](data);
         }
     },
     mounted(){
