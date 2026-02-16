@@ -42,11 +42,12 @@ const alumnos = {
             //await this.obtenerAlumnos();
 
             if(this.data_alumnos.length > 0 && this.accion=='nuevo'){
-                alert("El codigo del alumno ya existe, "+ this.data_alumnos[0].nombre);
+                alertify.error(`El codigo del alumno ya existe, ${this.data_alumnos[0].nombre}`);
                 return; //Termina la ejecucion de la funcion
             }
             db.alumnos.put(datos);
             this.limpiarFormulario();
+            alertify.success(`${datos.nombre} guardado correctamente`);
             //this.obtenerAlumnos();
         },
         getId(){
