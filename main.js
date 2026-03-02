@@ -6,11 +6,7 @@ const { createApp } = Vue,
 createApp({
     components:{
         alumnos,
-        busqueda_alumnos,
-        materias,
-        busqueda_materias,
-        docentes,
-        busqueda_docentes
+        busqueda_alumnos
     },
     data(){
         return{
@@ -39,9 +35,7 @@ createApp({
     },
     mounted(){
         db.version(1).stores({
-            "alumnos": "idAlumno, codigo, nombre, direccion, email, telefono",
-            "materias": "idMateria, codigo, nombre, uv",
-            "docentes": "idDocente, codigo, nombre, direccion, email, telefono, escalafon"
+            "alumnos": "idAlumno, codigo, nombre, direccion, email, telefono"
         });
     }
 }).mount("#app");

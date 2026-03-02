@@ -10,20 +10,18 @@ const busqueda_alumnos = {
             this.$emit('modificar', alumno);
         },
         async obtenerAlumnos(){
+            console.log("hola");
             this.alumnos = await db.alumnos.filter(
                 alumno => alumno.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
                     || alumno.nombre.toLowerCase().includes(this.buscar.toLowerCase())
             ).toArray();
         },
-        async eliminarAlumno(alumno, e){
+        async eliminarAlumno(idAlumno, e){
             e.stopPropagation();
-            alertify.confirm('Elimanar alumnos', `¿Está seguro de eliminar el alumno ${alumno.nombre}?`, async e=>{
-                await db.alumnos.delete(alumno.idAlumno);
+            if(confirm("¿Está seguro de eliminar el alumno?")){
+                await db.alumnos.delete(idAlumno);
                 this.obtenerAlumnos();
-                alertify.success(`Alumno ${alumno.nombre} eliminado correctamente`);
-            }, () => {
-                //No hacer nada
-            });
+            }
         },
     },
     template: `
@@ -53,7 +51,7 @@ const busqueda_alumnos = {
                             <td>{{ alumno.email }}</td>
                             <td>{{ alumno.telefono }}</td>
                             <td>
-                                <button class="btn btn-danger" @click="eliminarAlumno(alumno, $event)">DEL</button>
+                                <button class="btn btn-danger" @click="eliminarAlumno(alumno.idAlumno, $event)">DEL</button>
                             </td>
                         </tr>
                     </tbody>
