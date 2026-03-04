@@ -1,41 +1,28 @@
-const { createApp } = Vue,
-    Dexie = window.Dexie,
-    db = new Dexie("db_academica");
+const { createApp } = Vue;
+const db = new Dexie("db_codigo_estudiante");
+db.version(1).stores({
+    autor: '++idAutor, codigo, nombre, pais, telefono',
+    libros: '++idLibro, idAutor, titulo, editorial, edicion'
+});
 
-
-createApp({
-    components:{
-        alumnos,
-        busqueda_alumnos
-    },
-    data(){
-        return{
-            forms:{
-                alumnos:{mostrar:false},
-                busqueda_alumnos:{mostrar:false},
-                materias:{mostrar:false},
-                busqueda_materias:{mostrar:false},
-                docentes:{mostrar:false},
-                busqueda_docentes:{mostrar:false},
-                matriculas:{mostrar:false},
-                inscripciones:{mostrar:false}
+const app = createApp({
+    data() {
+        return {
+            forms: {
+                autor: { mostrar: true },
+                libros: { mostrar: false }
             }
         }
     },
-    methods:{
-        buscar(ventana, metodo){
-            this.$refs[ventana][metodo]();
-        },
-        abrirVentana(ventana){
-            this.forms[ventana].mostrar = !this.forms[ventana].mostrar;
-        },
-        modificar(ventana, metodo, data){
-            this.$refs[ventana][metodo](data);
+    methods: {
+        abrirVentana(ventana) {
+            this.forms.autor.mostrar = false;
+            this.forms.libros.mostrar = false;
+            this.forms[ventana].mostrar = true;
         }
-    },
-    mounted(){
-        db.version(1).stores({
-            "alumnos": "idAlumno, codigo, nombre, direccion, email, telefono"
-        });
     }
-}).mount("#app");
+});
+
+app.component('autor', autor);
+app.component('libros', libros);
+app.mount('#app');
