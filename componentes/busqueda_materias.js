@@ -14,11 +14,24 @@ const busqueda_materias = {
                 materia => materia.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
                     || materia.nombre.toLowerCase().includes(this.buscar.toLowerCase())
             ).toArray();
+            if( this.materias.length<1 && this.buscar.length<=0){
+                fetch(`private/modulos/materias/materia.php?accion=consultar`)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        this.materias = data;
+                        db.materias.bulkAdd(data);
+                    });
+            }
         },
         async eliminarMateria(materia, e){
             e.stopPropagation();
             alertify.confirm('Eliminar materias', `¿Está seguro de eliminar el materia ${materia.nombre}?`, async e=>{
                 await db.materias.delete(materia.idMateria);
+                fetch(`private/modulos/materias/materia.php?accion=eliminar&materias=${JSON.stringify(materia)}`)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+                    });
                 this.obtenerMaterias();
                 alertify.success(`Materia ${materia.nombre} eliminada correctamente`);
             }, () => {

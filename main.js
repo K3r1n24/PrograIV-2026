@@ -1,7 +1,8 @@
 const { createApp } = Vue,
     Dexie = window.Dexie,
     db = new Dexie("db_academica"),
-    sha256 = CryptoJS.SHA256;
+    sha256 = CryptoJS.SHA256,
+    uuid = window.uuid;
 
 
 createApp({
