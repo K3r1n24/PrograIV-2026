@@ -8,11 +8,11 @@ const { createApp } = Vue,
 createApp({
     components:{
         alumnos,
-        busqueda_alumnos,
+        buscar_alumnos,
         materias,
-        busqueda_materias,
+        buscar_materias,
         docentes,
-        busqueda_docentes
+        buscar_docentes
     },
     data(){
         return{
@@ -46,4 +46,4 @@ createApp({
             "docentes": "idDocente, codigo, nombre, direccion, email, telefono, escalafon"
         });
     }
-}).mount("#app");
+}).directive('draggable', vDraggable).mount("#app");

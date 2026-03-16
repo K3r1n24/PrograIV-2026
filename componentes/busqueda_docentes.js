@@ -1,4 +1,4 @@
-const busqueda_docentes = {
+const buscar_docentes = {
     data(){
         return{
             buscar:'',
