@@ -37,6 +37,15 @@ CREATE TABLE `alumnos` (
   `telefono` char(9) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+CREATE TABLE `materias` (
+  `id` int(10) NOT NULL,
+  `idMateria` char(36) NOT NULL,
+  `codigo` char(10) NOT NULL,
+  `nombre` char(100) NOT NULL,
+  `uv` int(2) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
 --
 -- Índices para tablas volcadas
 --
@@ -48,6 +57,10 @@ ALTER TABLE `alumnos`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `idAlumno` (`idAlumno`);
 
+
+ALTER TABLE `materias`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `idMateria` (`idMateria`) USING BTREE;
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
@@ -59,13 +72,10 @@ ALTER TABLE `alumnos`
   MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-CREATE TABLE `materias` (
-  `id` int(10) NOT NULL,
-  `idMateria` char(36) NOT NULL,
-  `codigo` char(10) NOT NULL,
-  `nombre` char(100) NOT NULL,
-  `uv` int(2) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `materias`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+COMMIT;
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
