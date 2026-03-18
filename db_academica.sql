@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 02, 2026 at 07:06 PM
+-- Generation Time: Mar 18, 2026 at 02:30 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -38,6 +38,34 @@ CREATE TABLE `alumnos` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
+-- Dumping data for table `alumnos`
+--
+
+INSERT INTO `alumnos` (`id`, `idAlumno`, `codigo`, `nombre`, `direccion`, `email`, `telefono`) VALUES
+(2, '1773078481975', 'USIS018805', 'Jorge Hernandez', 'San Miguel', 'jorge@ugb.edu.sv', '4545-8989');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `materias`
+--
+
+CREATE TABLE `materias` (
+  `id` int(10) NOT NULL,
+  `idMateria` char(36) NOT NULL,
+  `codigo` char(10) NOT NULL,
+  `nombre` char(100) NOT NULL,
+  `uv` int(2) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `materias`
+--
+
+INSERT INTO `materias` (`id`, `idMateria`, `codigo`, `nombre`, `uv`) VALUES
+(1, '718c7823-db78-44b5-b7ec-6db1517c2535', '609', 'Programacion Computacional II', 4);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -49,6 +77,13 @@ ALTER TABLE `alumnos`
   ADD UNIQUE KEY `idAlumno` (`idAlumno`);
 
 --
+-- Indexes for table `materias`
+--
+ALTER TABLE `materias`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `idMateria` (`idMateria`) USING BTREE;
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -56,7 +91,13 @@ ALTER TABLE `alumnos`
 -- AUTO_INCREMENT for table `alumnos`
 --
 ALTER TABLE `alumnos`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `materias`
+--
+ALTER TABLE `materias`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
