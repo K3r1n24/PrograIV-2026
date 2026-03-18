@@ -1,4 +1,5 @@
-const busqueda_alumnos = {
+const buscar_alumnos = {
+    props:['forms'],
     data(){
         return{
             buscar:'',
@@ -6,6 +7,9 @@ const busqueda_alumnos = {
         }
     },
     methods:{
+        cerrarFormularioBusquedaAlumnos(){
+            this.forms.busqueda_alumnos.mostrar = false;
+        },
         modificarAlumno(alumno){
             this.$emit('modificar', alumno);
         },
@@ -40,40 +44,52 @@ const busqueda_alumnos = {
         },
     },
     template: `
-        <div class="row">
-            <div class="col-6">
-                <table class="table table-striped table-hover" id="tblAlumnos">
-                    <thead>
-                        <tr>
-                            <th colspan="6">
-                                <input autocomplete="off" type="search" @keyup="obtenerAlumnos()" v-model="buscar" placeholder="Buscar alumno" class="form-control">
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>CODIGO</th>
-                            <th>NOMBRE</th>
-                            <th>DIRECCION</th>
-                            <th>EMAIL</th>
-                            <th>TELEFONO</th>
-                            <th>HASH</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="alumno in alumnos" :key="alumno.idAlumno" @click="modificarAlumno(alumno)">
-                            <td>{{ alumno.codigo }}</td>
-                            <td>{{ alumno.nombre }}</td>
-                            <td>{{ alumno.direccion }}</td>
-                            <td>{{ alumno.email }}</td>
-                            <td>{{ alumno.telefono }}</td>
-                            <td>{{ alumno.hash }}</td>
-                            <td>
-                                <button class="btn btn-danger" @click="eliminarAlumno(alumno, $event)">DEL</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div v-draggable>
+                <div class="card text-bg-dark mb-3">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <div class="p-1">
+                                BUSQUEDA DE ALUMNOS
+                            </div>
+                            <div>
+                                <button type="button" class="btn-close btn-close-white" aria-label="Close" @click="cerrarFormularioBusquedaAlumnos"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-hover" id="tblAlumnos">
+                            <thead>
+                                <tr>
+                                    <th colspan="6">
+                                        <input autocomplete="off" type="search" @keyup="obtenerAlumnos()" v-model="buscar" placeholder="Buscar alumno" class="form-control">
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>CODIGO</th>
+                                    <th>NOMBRE</th>
+                                    <th>DIRECCION</th>
+                                    <th>EMAIL</th>
+                                    <th>TELEFONO</th>
+                                    <th>HASH</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="alumno in alumnos" :key="alumno.idAlumno" @click="modificarAlumno(alumno)">
+                                    <td>{{ alumno.codigo }}</td>
+                                    <td>{{ alumno.nombre }}</td>
+                                    <td>{{ alumno.direccion }}</td>
+                                    <td>{{ alumno.email }}</td>
+                                    <td>{{ alumno.telefono }}</td>
+                                    <td>{{ alumno.hash }}</td>
+                                    <td>
+                                        <button class="btn btn-danger" @click="eliminarAlumno(alumno, $event)">DEL</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
         </div>
     `
 };

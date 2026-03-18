@@ -1,17 +1,18 @@
 const { createApp } = Vue,
     Dexie = window.Dexie,
     db = new Dexie("db_academica"),
-    sha256 = CryptoJS.SHA256;
+    sha256 = CryptoJS.SHA256,
+    uuid = window.uuid;
 
 
 createApp({
     components:{
         alumnos,
-        busqueda_alumnos,
+        buscar_alumnos,
         materias,
-        busqueda_materias,
+        buscar_materias,
         docentes,
-        busqueda_docentes
+        buscar_docentes
     },
     data(){
         return{
@@ -45,4 +46,4 @@ createApp({
             "docentes": "idDocente, codigo, nombre, direccion, email, telefono, escalafon"
         });
     }
-}).mount("#app");
+}).directive('draggable', vDraggable).mount("#app");
