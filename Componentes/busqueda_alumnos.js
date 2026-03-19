@@ -1,95 +1,71 @@
 const buscar_alumnos = {
-    props:['forms'],
-    data(){
-        return{
-            buscar:'',
-            alumnos:[]
+    props: ['forms'],
+    data() {
+        return { buscar: '', alumnos: [] }
+    },
+    methods: {
+        obtenerAlumnos() {
+            try {
+                const term = `%${this.buscar}%`;
+                const sql = "SELECT * FROM alumnos WHERE nombre LIKE ? OR codigo LIKE ? ORDER BY nombre ASC";
+                this.alumnos = db_sqlite.selectObjects(sql, [term, term]);
+            } catch (e) { console.error(e); }
+        },
+        eliminarAlumno(alumno, e) {
+            e.stopPropagation(); // IMPORTANTE: evita que se abra el formulario al hacer clic en eliminar
+            
+            alertify.confirm("Eliminar Alumno", `¿Está seguro de eliminar a ${alumno.nombre}?`, () => {
+                try {
+                    // EJECUTAR EL DELETE EN SQLITE
+                    db_sqlite.exec({
+                        sql: "DELETE FROM alumnos WHERE idAlumno = ?",
+                        bind: [alumno.idAlumno]
+                    });
+                    
+                    // MENSAJE DE EXITO
+                    alertify.error("Alumno eliminado de la base de datos");
+                    
+                    // REFRESCAR LA TABLA DE INMEDIATO
+                    this.obtenerAlumnos();
+                } catch (error) {
+                    alertify.error("Error al eliminar");
+                }
+            }, () => { });
         }
     },
-    methods:{
-        cerrarFormularioBusquedaAlumnos(){
-            this.forms.busqueda_alumnos.mostrar = false;
-        },
-        modificarAlumno(alumno){
-            this.$emit('modificar', alumno);
-        },
-        async obtenerAlumnos(){
-            this.alumnos = await db.alumnos.filter(
-                alumno => alumno.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
-                    || alumno.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ).toArray();
-            if( this.alumnos.length<1 && this.buscar.length<=0){
-                fetch(`private/modulos/alumnos/alumno.php?accion=consultar`)
-                    .then(response=>response.json())
-                    .then(data=>{
-                        this.alumnos = data;
-                        db.alumnos.bulkAdd(data);
-                    });
-            }
-        },
-        async eliminarAlumno(alumno, e){
-            e.stopPropagation();
-            alertify.confirm('Elimanar alumnos', `¿Está seguro de eliminar el alumno ${alumno.nombre}?`, async e=>{
-                await db.alumnos.delete(alumno.idAlumno);
-                fetch(`private/modulos/alumnos/alumno.php?accion=eliminar&alumnos=${JSON.stringify(alumno)}`)
-                    .then(response=>response.json())
-                    .then(data=>{
-                        if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
-                    });
-                this.obtenerAlumnos();
-                alertify.success(`Alumno ${alumno.nombre} eliminado correctamente`);
-            }, () => {
-                //No hacer nada
-            });
-        },
+    mounted() {
+        this.obtenerAlumnos();
     },
     template: `
-        <div v-draggable>
-                <div class="card text-bg-dark mb-3">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <div class="p-1">
-                                BUSQUEDA DE ALUMNOS
-                            </div>
-                            <div>
-                                <button type="button" class="btn-close btn-close-white" aria-label="Close" @click="cerrarFormularioBusquedaAlumnos"></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-striped table-hover" id="tblAlumnos">
-                            <thead>
-                                <tr>
-                                    <th colspan="6">
-                                        <input autocomplete="off" type="search" @keyup="obtenerAlumnos()" v-model="buscar" placeholder="Buscar alumno" class="form-control">
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th>CODIGO</th>
-                                    <th>NOMBRE</th>
-                                    <th>DIRECCION</th>
-                                    <th>EMAIL</th>
-                                    <th>TELEFONO</th>
-                                    <th>HASH</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="alumno in alumnos" :key="alumno.idAlumno" @click="modificarAlumno(alumno)">
-                                    <td>{{ alumno.codigo }}</td>
-                                    <td>{{ alumno.nombre }}</td>
-                                    <td>{{ alumno.direccion }}</td>
-                                    <td>{{ alumno.email }}</td>
-                                    <td>{{ alumno.telefono }}</td>
-                                    <td>{{ alumno.hash }}</td>
-                                    <td>
-                                        <button class="btn btn-danger" @click="eliminarAlumno(alumno, $event)">DEL</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <div v-draggable class="card text-bg-dark m-2" style="width: 1000px; position: fixed; right: 20px; top: 100px; z-index: 999;">
+            <div class="card-header d-flex justify-content-between">
+                <span>BUSQUEDA DE ALUMNOS</span>
+                <button type="button" class="btn-close btn-close-white" @click="forms.busqueda_alumnos.mostrar=false"></button>
+            </div>
+            <div class="card-body">
+                <input v-model="buscar" @keyup="obtenerAlumnos" placeholder="Buscar por nombre o código..." class="form-control mb-3">
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>CODIGO</th><th>NOMBRE</th><th>DIRECCION</th><th>EMAIL</th><th>TELEFONO</th><th>ACCION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="a in alumnos" :key="a.idAlumno" @click="$emit('modificar', a)" style="cursor:pointer">
+                                <td>{{ a.codigo }}</td>
+                                <td>{{ a.nombre }}</td>
+                                <td>{{ a.direccion }}</td>
+                                <td>{{ a.email }}</td>
+                                <td>{{ a.telefono }}</td>
+                                <td class="text-center">
+                                    <button @click.stop="eliminarAlumno(a, $event)" class="btn btn-danger btn-sm">ELIMINAR</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
         </div>
     `
 };

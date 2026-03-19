@@ -1,144 +1,55 @@
 const alumnos = {
     props:['forms'],
     data(){
-        return{
-            alumno:{
-                idAlumno:0,
-                codigo:"",
-                nombre:"",
-                direccion:"",
-                email:"",
-                telefono:""
-            },
-            accion:'nuevo',
-            idAlumno:0,
-            data_alumnos:[]
+        return {
+            alumno:{ idAlumno:0, codigo:"", nombre:"", direccion:"", email:"", telefono:"" },
+            accion:'nuevo'
         }
     },
     methods:{
-        cerrarFormularioAlumno(){
-            this.forms.alumnos.mostrar = false;
-        },
+        cerrarFormularioAlumno(){ this.forms.alumnos.mostrar = false; },
         buscarAlumno(){
-            this.forms.busqueda_alumnos.mostrar = !this.forms.busqueda_alumnos.mostrar;
+            this.forms.busqueda_alumnos.mostrar = true;
             this.$emit('buscar');
         },
         modificarAlumno(alumno){
             this.accion = 'modificar';
-            this.idAlumno = alumno.idAlumno;
-            this.alumno.codigo = alumno.codigo;
-            this.alumno.nombre = alumno.nombre;
-            this.alumno.direccion = alumno.direccion;
-            this.alumno.email = alumno.email;
-            this.alumno.telefono = alumno.telefono;
+            this.alumno = {...alumno};
         },
         async guardarAlumno() {
-            let datos = {
-                idAlumno: this.accion=='modificar' ? this.idAlumno : this.getId(),
-                codigo: this.alumno.codigo,
-                nombre: this.alumno.nombre,
-                direccion: this.alumno.direccion,
-                email: this.alumno.email,
-                telefono: this.alumno.telefono
-            };
-            //datos.hash = sha256(JSON.stringify(datos));
-            this.buscar = datos.codigo;
-            //await this.obtenerAlumnos();
-
-            if(this.data_alumnos.length > 0 && this.accion=='nuevo'){
-                alertify.error(`El codigo del alumno ya existe, ${this.data_alumnos[0].nombre}`);
-                return; //Termina la ejecucion de la funcion
-            }
-            db.alumnos.put(datos);
-            fetch(`private/modulos/alumnos/alumno.php?accion=${this.accion}&alumnos=${JSON.stringify(datos)}`)
-                .then(response=>response.json())
-                .then(data=>{
-                    if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+            let id = this.accion == 'modificar' ? this.alumno.idAlumno : uuid.v4();
+            try {
+                db_sqlite.exec({
+                    sql: `INSERT OR REPLACE INTO alumnos (idAlumno, codigo, nombre, direccion, email, telefono) 
+                          VALUES (?, ?, ?, ?, ?, ?)`,
+                    bind: [id, this.alumno.codigo, this.alumno.nombre, this.alumno.direccion, this.alumno.email, this.alumno.telefono]
                 });
-            this.limpiarFormulario();
-            alertify.success(`${datos.nombre} guardado correctamente`);
-            //this.obtenerAlumnos();
-        },
-        getId(){
-            return uuid.v4();
+                alertify.success("Alumno guardado en SQLite");
+                this.limpiarFormulario();
+            } catch (e) { alertify.error("Error al guardar"); }
         },
         limpiarFormulario(){
             this.accion = 'nuevo';
-            this.idAlumno = 0;
-            this.alumno.codigo = '';
-            this.alumno.nombre = '';
-            this.alumno.direccion = '';
-            this.alumno.email = '';
-            this.alumno.telefono = '';
-        },
+            this.alumno = { idAlumno:0, codigo:"", nombre:"", direccion:"", email:"", telefono:"" };
+        }
     },
     template: `
-        <div v-draggable>
-            <form id="frmAlumnos" @submit.prevent="guardarAlumno" @reset.prevent="limpiarFormulario">
-                <div class="card text-bg-dark">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <div class="p-1">
-                                REGISTRO DE ALUMNOS
-                            </div>
-                            <div>
-                                <button type="button" class="btn-close btn-close-white" aria-label="Close" @click="cerrarFormularioAlumno"></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row p-1">
-                            <div class="col-4">
-                                CODIGO:
-                            </div>
-                            <div class="col-5">
-                                <input placeholder="codigo" required v-model="alumno.codigo" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="row p-1">
-                            <div class="col-4">
-                                NOMBRE:
-                            </div>
-                            <div class="col-8">
-                                <input placeholder="nombre" required v-model="alumno.nombre" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="row p-1">
-                            <div class="col-4">
-                                DIRECCION:
-                            </div>
-                            <div class="col-8">
-                                <input placeholder="direccion" required v-model="alumno.direccion" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="row p-1">
-                            <div class="col-4">
-                                EMAIL:
-                            </div>
-                            <div class="col-8">
-                                <input placeholder="email" required v-model="alumno.email" type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="row p-1">
-                            <div class="col-4">
-                                TELEFONO:
-                            </div>
-                            <div class="col-6">
-                                <input placeholder="telefono" required v-model="alumno.telefono" type="text" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col text-center">
-                                <button type="submit" id="btnGuardarAlumno" class="btn btn-primary">GUARDAR</button>
-                                <button type="reset" id="btnCancelarAlumno" class="btn btn-warning">NUEVO</button>
-                                <button type="button" @click="buscarAlumno" id="btnBuscarAlumno" class="btn btn-success">BUSCAR</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+        <div v-draggable class="card text-bg-dark m-2" style="width: 400px; position: fixed; z-index: 1000;">
+            <div class="card-header d-flex justify-content-between">
+                REGISTRO DE ALUMNOS <button class="btn-close btn-close-white" @click="cerrarFormularioAlumno"></button>
+            </div>
+            <div class="card-body">
+                <input v-model="alumno.codigo" placeholder="Código" class="form-control mb-2">
+                <input v-model="alumno.nombre" placeholder="Nombre" class="form-control mb-2">
+                <input v-model="alumno.direccion" placeholder="Dirección" class="form-control mb-2">
+                <input v-model="alumno.email" placeholder="Email" class="form-control mb-2">
+                <input v-model="alumno.telefono" placeholder="Teléfono" class="form-control mb-2">
+            </div>
+            <div class="card-footer text-center">
+                <button @click="guardarAlumno" class="btn btn-primary m-1">GUARDAR</button>
+                <button @click="limpiarFormulario" class="btn btn-warning m-1">NUEVO</button>
+                <button @click="buscarAlumno" class="btn btn-success m-1">BUSCAR</button>
+            </div>
         </div>
     `
 };

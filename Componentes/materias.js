@@ -29,28 +29,41 @@ const materias = {
             this.materia.uv = materia.uv;
         },
         async guardarMateria() {
-            let datos = {
-                idMateria: this.accion=='modificar' ? this.idMateria : this.getId(),
-                codigo: this.materia.codigo,
-                nombre: this.materia.nombre,
-                uv: this.materia.uv,
-            };
-            this.buscar = datos.codigo;
-            //await this.obtenerMaterias();
+            // 1. Definimos el ID (UUID o el existente)
+            let idActual = this.accion == 'modificar' ? this.idMateria : this.getId();
 
-            if(this.data_materias.length > 0 && this.accion=='nuevo'){
-                alertify.error(`El codigo del materia ya existe, ${this.data_materias[0].nombre}`);
-                return; //Termina la ejecucion de la funcion
-            }
-            db.materias.put(datos);
-            fetch(`private/modulos/materias/materia.php?accion=${this.accion}&materias=${JSON.stringify(datos)}`)
-                .then(response=>response.json())
-                .then(data=>{
-                    if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+            try {
+                // 2. Verificar si el código ya existe (solo en registros nuevos)
+                if (this.accion == 'nuevo') {
+                    const existente = db_sqlite.selectObjects(
+                        "SELECT nombre FROM materias WHERE codigo = ?", 
+                        [this.materia.codigo]
+                    );
+                    if (existente.length > 0) {
+                        alertify.error(`El código de materia ya existe: ${existente[0].nombre}`);
+                        return;
+                    }
+                }
+
+                // 3. Ejecutar el INSERT OR REPLACE en SQLite
+                db_sqlite.exec({
+                    sql: `INSERT OR REPLACE INTO materias (idMateria, codigo, nombre, uv) 
+                          VALUES (?, ?, ?, ?)`,
+                    bind: [
+                        idActual,
+                        this.materia.codigo,
+                        this.materia.nombre,
+                        this.materia.uv
+                    ]
                 });
-            this.limpiarFormulario();
-            //this.obtenerMaterias();
-            alertify.success(`Materia ${datos.nombre} guardada correctamente`);
+
+                alertify.success(`Materia ${this.materia.nombre} guardada con éxito en SQLite`);
+                this.limpiarFormulario();
+                
+            } catch (error) {
+                console.error("Error en SQLite Materias:", error);
+                alertify.error("No se pudo guardar la materia localmente");
+            }
         },
         getId(){
             return uuid.v4();
@@ -79,27 +92,21 @@ const materias = {
                 </div>
                 <div class="card-body">
                     <div class="row p-1">
-                        <div class="col-3">
-                            CODIGO:
-                        </div>
+                        <div class="col-3">CODIGO:</div>
                         <div class="col-3">
                             <input placeholder="codigo" required v-model="materia.codigo" type="text" class="form-control">
                         </div>
                     </div>
                     <div class="row p-1">
-                        <div class="col-3">
-                            NOMBRE:
-                        </div>
+                        <div class="col-3">NOMBRE:</div>
                         <div class="col-6">
                             <input placeholder="nombre" required v-model="materia.nombre" type="text" class="form-control">
                         </div>
                     </div>
                     <div class="row p-1">
+                        <div class="col-3">UV:</div>
                         <div class="col-3">
-                            UV:
-                        </div>
-                        <div class="col-9">
-                            <input placeholder="uv" required v-model="materia.uv" type="text" class="form-control">
+                            <input placeholder="uv" required v-model="materia.uv" type="number" class="form-control">
                         </div>
                     </div>
                 </div>

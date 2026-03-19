@@ -32,29 +32,46 @@ const docentes = {
             this.docente.escalafon = docente.escalafon;
         },
         async guardarDocente() {
-            let datos = {
-                idDocente: this.accion=='modificar' ? this.idDocente : this.getId(),
-                codigo: this.docente.codigo,
-                nombre: this.docente.nombre,
-                direccion: this.docente.direccion,
-                email: this.docente.email,
-                telefono: this.docente.telefono,
-                escalafon: this.docente.escalafon
-            };
-            this.buscar = datos.codigo;
-            //await this.obtenerDocentes();
+            let idActual = this.accion == 'modificar' ? this.idDocente : this.getId();
 
-            if(this.data_docentes.length > 0 && this.accion=='nuevo'){
-                alertify.error(`El codigo del docente ya existe, ${this.data_docentes[0].nombre}`);
-                return; //Termina la ejecucion de la funcion
+            try {
+                // 1. Verificar si el código ya existe (solo si es nuevo)
+                if (this.accion == 'nuevo') {
+                    const existente = db_sqlite.selectObjects(
+                        "SELECT nombre FROM docentes WHERE codigo = ?", 
+                        [this.docente.codigo]
+                    );
+                    if (existente.length > 0) {
+                        alertify.error(`El código ya existe, pertenece al docente: ${existente[0].nombre}`);
+                        return;
+                    }
+                }
+
+                // 2. Ejecutar el GUARDAR con SQL (INSERT OR REPLACE)
+                db_sqlite.exec({
+                    sql: `INSERT OR REPLACE INTO docentes (idDocente, codigo, nombre, direccion, email, telefono, escalafon) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    bind: [
+                        idActual,
+                        this.docente.codigo,
+                        this.docente.nombre,
+                        this.docente.direccion,
+                        this.docente.email,
+                        this.docente.telefono,
+                        this.docente.escalafon
+                    ]
+                });
+
+                alertify.success(`${this.docente.nombre} guardado correctamente en SQLite`);
+                this.limpiarFormulario();
+                
+            } catch (error) {
+                console.error("Error en SQLite Docentes:", error);
+                alertify.error("No se pudo guardar el docente localmente");
             }
-            db.docentes.put(datos);
-            this.limpiarFormulario();
-            alertify.success(`${datos.nombre} guardado correctamente`);
-            //this.obtenerDocentes();
         },
         getId(){
-            return new Date().getTime();
+            return new Date().getTime(); 
         },
         limpiarFormulario(){
             this.accion = 'nuevo';
@@ -75,51 +92,39 @@ const docentes = {
                         <div class="card-header">REGISTRO DE DOCENTES</div>
                         <div class="card-body">
                             <div class="row p-1">
-                                <div class="col-3">
-                                    CODIGO:
-                                </div>
+                                <div class="col-3">CODIGO:</div>
                                 <div class="col-3">
                                     <input placeholder="codigo" required v-model="docente.codigo" type="text" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3">
-                                    NOMBRE:
-                                </div>
+                                <div class="col-3">NOMBRE:</div>
                                 <div class="col-6">
                                     <input placeholder="nombre" required v-model="docente.nombre" type="text" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3">
-                                    DIRECCION:
-                                </div>
+                                <div class="col-3">DIRECCION:</div>
                                 <div class="col-9">
                                     <input placeholder="direccion" required v-model="docente.direccion" type="text" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3">
-                                    EMAIL:
-                                </div>
+                                <div class="col-3">EMAIL:</div>
                                 <div class="col-6">
                                     <input placeholder="email" required v-model="docente.email" type="text" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3">
-                                    TELEFONO:
-                                </div>
+                                <div class="col-3">TELEFONO:</div>
                                 <div class="col-4">
                                     <input placeholder="telefono" required v-model="docente.telefono" type="text" class="form-control">
                                 </div>
                             </div>
                             <div class="row p-1">
-                                <div class="col-3">
-                                    ESCALAFON:
-                                </div>
-                                <div class="col-4">
-                                    <select required title="Seleccione un escalafon" v-model="docente.escalafon" class="form-select">
+                                <div class="col-3">ESCALAFON:</div>
+                                <div class="col-5">
+                                    <select required v-model="docente.escalafon" class="form-select">
                                         <option value="tecnico">Tecnico</option>
                                         <option value="profesor">Profesor</option>
                                         <option value="ingeniero">Licenciado/Ingeniero</option>
@@ -129,14 +134,10 @@ const docentes = {
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <div class="row">
-                                <div class="col text-center">
-                                    <button type="submit" id="btnGuardarDocente" class="btn btn-primary">GUARDAR</button>
-                                    <button type="reset" id="btnCancelarDocente" class="btn btn-warning">NUEVO</button>
-                                    <button type="button" @click="buscarDocente" id="btnBuscarDocente" class="btn btn-success">BUSCAR</button>
-                                </div>
-                            </div>
+                        <div class="card-footer text-center">
+                            <button type="submit" class="btn btn-primary m-1">GUARDAR</button>
+                            <button type="reset" class="btn btn-warning m-1">NUEVO</button>
+                            <button type="button" @click="buscarDocente" class="btn btn-success m-1">BUSCAR</button>
                         </div>
                     </div>
                 </form>
