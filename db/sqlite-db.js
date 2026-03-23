@@ -107,6 +107,7 @@ async function upsertDocente(sqliteDb, docente) {
 }
 
 async function createSchema(sqliteDb) {
+    console.time('createSchema');
     await sqliteDb.exec(`
         PRAGMA journal_mode = WAL;
         PRAGMA foreign_keys = ON;
@@ -144,6 +145,7 @@ async function createSchema(sqliteDb) {
 
         CREATE UNIQUE INDEX IF NOT EXISTS idx_docentes_codigo ON docentes(codigo);
     `);
+    console.timeEnd('createSchema');
 }
 
 async function initSqliteDb() {

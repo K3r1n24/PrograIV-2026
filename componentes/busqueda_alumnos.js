@@ -5,14 +5,16 @@ const buscar_alumnos = {
         cerrarFormularioBusquedaAlumnos(){ this.forms.busqueda_alumnos.mostrar = false; },
         modificarAlumno(alumno){ this.$emit('modificar', alumno); },
         async obtenerAlumnos(){
+            console.time('obtenerAlumnos');
             const criterio = `%${this.buscar.toLowerCase()}%`;
             this.alumnos = await db.select(
                 `SELECT idAlumno, codigo, nombre, direccion, email, telefono, hash
                  FROM alumnos
-                 WHERE lower(codigo) LIKE ? OR lower(nombre) LIKE ?
+                 WHERE lower(codigo) LIKE ? OR lower(nombre) LIKE ? OR lower(email) LIKE ?
                  ORDER BY codigo;`,
-                [criterio, criterio]
+                [criterio, criterio, criterio]
             );
+            console.timeEnd('obtenerAlumnos');
             if( this.alumnos.length<1 && this.buscar.length<=0){
                 fetch(`private/modulos/alumnos/alumno.php?accion=consultar`)
                     .then(response=>response.json())

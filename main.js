@@ -46,6 +46,18 @@ const uuid = {
                 },
                 modificar(ventana, metodo, data){
                     this.$refs[ventana][metodo](data);
+                },
+                async hacerBackup(){
+                    const root = await navigator.storage.getDirectory();
+                    const fileHandle = await root.getFileHandle('db_academica.sqlite3');
+                    const file = await fileHandle.getFile();
+
+                    // Descargar el archivo
+                    const url = URL.createObjectURL(file);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'db_academica.sqlite3';
+                    a.click();   
                 }
             }
         }).directive('draggable', vDraggable).mount("#app");
