@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AlumnoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,10 @@ Route::get('/', function () {
 });
 Route::get('/bienvenida/{nombre}', function ($nombre) {
     return '<h1>Bienvenido a mi pagina, hola '.$nombre.', como estas...</h1>';
+});
+Route::controller(AlumnoController::class)->group(function () {
+    Route::get('/alumno', 'index');
+    Route::post('/alumno', 'store');
+    Route::put('/alumno', 'update');
+    Route::delete('/alumno', 'destroy');
 });

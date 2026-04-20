@@ -19,7 +19,7 @@
         <link rel="stylesheet"href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
     </head>
     <body class="antialiased">
-        <div id="app">
+        <div id="appSistema">
             <nav class="navbar navbar-expand-lg bg-light">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="#">::.. SISTEMA ACADEMICO ..::</a>
@@ -35,16 +35,13 @@
                     </div>
                 </div>
             </nav>
-            <div id="appSistema" class="container-fluid" style="position: absolute; min-height: 80vh;">
-                <alumnos @buscar='buscar("busqueda_alumnos","obtenerAlumnos")' :forms="forms" ref="alumnos" v-show="forms.alumnos.mostrar"></alumnos>
-                <buscar_alumnos @modificar='modificar("alumnos","modificarAlumno", $event)' :forms="forms" ref="busqueda_alumnos" v-show="forms.busqueda_alumnos.mostrar"></buscar_alumnos>
+            <div class="container-fluid" style="position: absolute; min-height: 80vh;">
+                <alumnos @buscar='buscar("buscar_alumnos","obtenerAlumnos")' :forms="forms" ref="alumnos" v-show="forms.alumnos.mostrar"></alumnos>
+                <buscar_alumnos @modificar='modificar("alumnos","modificarAlumno", $event)' :forms="forms" ref="buscar_alumnos" v-show="forms.buscar_alumnos.mostrar"></buscar_alumnos>
 
-                <materias @buscar='buscar("busqueda_materias","obtenerMaterias")' :forms="forms" ref="materias" v-show="forms.materias.mostrar"></materias>
-                <buscar_materias @modificar='modificar("materias","modificarMateria", $event)' :forms="forms" ref="busqueda_materias" v-show="forms.busqueda_materias.mostrar"></buscar_materias>
-
-                <docentes @buscar='buscar("busqueda_docentes","obtenerDocentes")' :forms="forms" ref="docentes" v-show="forms.docentes.mostrar"></docentes>
-                <buscar_docentes @modificar='modificar("docentes","modificarDocente", $event)' :forms="forms" ref="busqueda_docentes" v-show="forms.busqueda_docentes.mostrar"></buscar_docentes>
             </div>
         </div>
+
+        @vite('resources/js/app.js')
     </body>
 </html>
