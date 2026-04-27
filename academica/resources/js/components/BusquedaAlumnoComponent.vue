@@ -35,7 +35,9 @@
             modificarAlumno(alumno){
                 this.$emit('modificar', alumno);
             },
-            eliminarAlumno(alumno){
+            eliminarAlumno(alumno, event){
+                event.stopPropagation();
+                
                 alertify.confirm('¿Está seguro de eliminar el alumno?', async ()=>{ 
                     axios({
                         method:'DELETE',

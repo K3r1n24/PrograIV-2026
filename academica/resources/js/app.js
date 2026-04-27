@@ -9,6 +9,8 @@ import { createApp } from 'vue';
 import Dexie from 'dexie';
 import alumnos from './components/AlumnoComponent.vue';
 import buscar_alumnos from './components/BusquedaAlumnoComponent.vue';
+import materias from './components/MateriaComponent.vue';
+import buscar_materias from './components/BusquedaMateriaComponent.vue';
 import { vDraggable } from './draggable';
 
 window.db = new Dexie('db_academica');
@@ -16,7 +18,9 @@ window.db = new Dexie('db_academica');
 createApp({
     components: {
         alumnos,
-        buscar_alumnos
+        buscar_alumnos,
+        materias,
+        buscar_materias
     },
     data(){
         return{

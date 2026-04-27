@@ -39,6 +39,8 @@
                 <alumnos @buscar='buscar("buscar_alumnos","obtenerAlumnos")' :forms="forms" ref="alumnos" v-show="forms.alumnos.mostrar"></alumnos>
                 <buscar_alumnos @modificar='modificar("alumnos","modificarAlumno", $event)' :forms="forms" ref="buscar_alumnos" v-show="forms.buscar_alumnos.mostrar"></buscar_alumnos>
 
+                <materias @buscar='buscar("buscar_materias","obtenerMaterias")' :forms="forms" ref="materias" v-show="forms.materias.mostrar"></materias>
+                <buscar_materias @modificar='modificar("materias","modificarMateria", $event)' :forms="forms" ref="buscar_materias" v-show="forms.buscar_materias.mostrar"></buscar_materias>
             </div>
         </div>
 

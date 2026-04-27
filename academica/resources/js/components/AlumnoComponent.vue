@@ -167,6 +167,7 @@ export default {
                         );
                     } else {
                         this.limpiarFormulario();
+                        this.$emit("buscar");
                     }
                 })
                 .catch((error) => {
