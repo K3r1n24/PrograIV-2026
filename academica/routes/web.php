@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\MateriaController;
+use App\Http\Controllers\DocenteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,4 +33,10 @@ Route::controller(MateriaController::class)->group(function () {
     Route::post('/materia', 'store');
     Route::put('/materia', 'update');
     Route::delete('/materia', 'destroy');    
+});
+Route::controller(DocenteController::class)->group(function () {
+    Route::get('/docente', 'index');
+    Route::post('/docente', 'store');
+    Route::put('/docente', 'update');
+    Route::delete('/docente', 'destroy');    
 });

@@ -32,6 +32,9 @@
             }
         },
         methods:{
+            cerrarFormularioBusquedaAlumnos(){
+                this.forms.buscar_alumnos.mostrar = false;
+            },
             modificarAlumno(alumno){
                 this.$emit('modificar', alumno);
             },

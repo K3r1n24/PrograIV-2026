@@ -11,6 +11,8 @@ import alumnos from './components/AlumnoComponent.vue';
 import buscar_alumnos from './components/BusquedaAlumnoComponent.vue';
 import materias from './components/MateriaComponent.vue';
 import buscar_materias from './components/BusquedaMateriaComponent.vue';
+import docentes from './components/DocenteComponent.vue';
+import buscar_docentes from './components/BusquedaDocenteComponent.vue';
 import { vDraggable } from './draggable';
 
 window.db = new Dexie('db_academica');
@@ -20,7 +22,9 @@ createApp({
         alumnos,
         buscar_alumnos,
         materias,
-        buscar_materias
+        buscar_materias,
+        docentes,
+        buscar_docentes
     },
     data(){
         return{
@@ -55,7 +59,7 @@ createApp({
         db.version(1).stores({
             alumnos:'idAlumno, codigo, nombre, direccion, email, telefono',
             materias:'idMateria, codigo, nombre, uv',
-            docentes:'idDocente, codigo, nombre, direccion, email, telefono',
+            docentes:'idDocente, codigo, nombre, direccion, email, telefono, escalafon',
         });
     }
 }).directive('draggable', vDraggable).mount('#appSistema');
